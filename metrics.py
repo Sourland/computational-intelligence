@@ -3,11 +3,6 @@ import tensorflow as tf
 from keras import backend as K
 
 
-def accuracy(y_pred, y_true):
-    correct_prediction = K.equal(K.argmax(y_pred, 1), tf.cast(y_true, tf.int64))
-    return K.mean(tf.cast(correct_prediction, tf.float32))
-
-
 def recall(y_true, y_pred):
     true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
     possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))

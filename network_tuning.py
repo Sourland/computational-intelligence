@@ -1,13 +1,19 @@
-from tensorflow import keras
-from keras import Model, layers, regularizers
-from keras.utils import to_categorical
-from metrics import accuracy, precision, recall, f_measure
+import os
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
 import tensorflow as tf
 import keras_tuner as kt
+
+from tensorflow import keras
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.callbacks import EarlyStopping
-import numpy as np
-from sklearn.model_selection import train_test_split
+
+from keras import layers
+from keras.utils import to_categorical
+
+from metrics import precision, recall, f_measure
 
 num_features = 784  # data features (img shape: 28*28).
 validation_split = 0.2
@@ -26,14 +32,10 @@ x_train, x_test = x_train / 255., x_test / 255.
 
 y_train, y_test = to_categorical(y_train, num_classes), to_categorical(y_test, num_classes)
 
-x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=validation_split,
-                                                  random_state=RANDOM_VARIABLE)
 print(x_test.shape)
 print(x_train.shape)
-print(x_val.shape)
 print(y_test.shape)
 print(y_train.shape)
-print(y_val.shape)
 
 
 def build_model(hp):
@@ -65,19 +67,21 @@ def build_model(hp):
 
     model.compile(optimizer=tf.optimizers.RMSprop(learning_rate=learning_rates),
                   loss=tf.keras.losses.CategoricalCrossentropy(),
-                  metrics=[accuracy, precision, recall, f_measure]
+                  metrics=['accuracy', precision, recall, f_measure]
                   )
 
     return model
 
 
-tuning_epochs = 1000
+total_epochs = 1000
 
-tuner = kt.RandomSearch(build_model,
-                        objective=kt.Objective('f1_m', direction='max'),
-                        directory='keras_tuner_dir',
-                        project_name='mlp_tuning'
-                        )
+tuner = kt.Hyperband(
+    build_model,
+    objective=kt.Objective("f_measure", direction='max'),
+    directory='keras_tuner_dir',
+    project_name='mlp_tuning',
+    overwrite=True
+)
 
 early_stopping = EarlyStopping(
     monitor="loss",
@@ -85,8 +89,19 @@ early_stopping = EarlyStopping(
     restore_best_weights=True)
 
 tuner.search(x_train, y_train,
-             epochs=tuning_epochs,
+             epochs=total_epochs,
              validation_split=0.2,
              batch_size=256,
              callbacks=[early_stopping],
              )
+
+optimal_hyperparameters = tuner.get_best_hyperparameters(num_trials=1)[0]
+tuned_model = tuner.hypermodel.build(optimal_hyperparameters)
+history = tuned_model.fit(x_train, y_train, epochs=total_epochs / 100, validation_split=0.2, batch_size=256)
+
+loss, accuracy, f1_score, model_precision, model_recall = tuned_model.evaluate(x_test, y_test, verbose=0)
+print('Test loss:', loss)
+print('Test accuracy:', accuracy)
+print('Test f1_score:', f1_score)
+print('Test model precision:', model_precision)
+print('Test model recall:', model_recall)
