@@ -16,10 +16,12 @@ RANDOM_VARIABLE = 42
 # Prepare MNIST data.
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
 # Convert to float32.
-x_train, x_test = np.array(x_train, np.float32), np.array(x_test, np.float32)
 # Flatten images to 1-D vector of 784 features (28*28).
 x_train, x_test = x_train.reshape([-1, num_features]), x_test.reshape([-1, num_features])
 # Normalize images value from [0, 255] to [0, 1].
+x_train.astype('float32')
+y_test.astype('float32')
+
 x_train, x_test = x_train / 255., x_test / 255.
 
 y_train, y_test = to_categorical(y_train, num_classes), to_categorical(y_test, num_classes)
@@ -77,13 +79,14 @@ tuner = kt.RandomSearch(build_model,
                         project_name='mlp_tuning'
                         )
 
-es = EarlyStopping(
-    monitor="f1_m",
+early_stopping = EarlyStopping(
+    monitor="loss",
     patience=200,
     restore_best_weights=True)
 
-tuner.search(x=x_train, y=y_train,
+tuner.search(x_train, y_train,
+             epochs=tuning_epochs,
              validation_split=0.2,
              batch_size=256,
-             callbacks=[es],
-             epochs=tuning_epochs)
+             callbacks=[early_stopping],
+             )
