@@ -1,7 +1,6 @@
 from tensorflow.keras import Model, layers, regularizers
 import tensorflow as tf
 
-
 RANDOM_VARIABLE = 42
 # Network parameters.
 n_hidden_1 = 128  # 1st layer number of neurons.
@@ -17,6 +16,7 @@ alpha_l1 = 0.01
 
 layers_l1 = [
     layers.Dense(n_hidden_1, activation=tf.nn.relu, kernel_regularizer=regularizers.L1(l1=alpha_l1), name="Layer1"),
+    layers.Dropout(rate=0.3),
     layers.Dense(n_hidden_2, activation=tf.nn.relu, kernel_regularizer=regularizers.L1(l1=alpha_l1), name="Layer2"),
     layers.Dense(num_classes, activation=tf.nn.softmax, name="LayerOut"),
 ]

@@ -6,7 +6,6 @@ from keras.backend import clear_session
 from MLP.models import model_sgd_l1, model_sgd_l2_case1, model_sgd_l2_case2, model_sgd_l2_case3, model_vanilla_case1, \
     model_vanilla_case2, compile_models
 
-
 epochs = 100
 num_features = 784  # data features (img shape: 28*28).
 validation_split = 0.2
@@ -19,9 +18,6 @@ x_train, x_test = np.array(x_train, np.float32), np.array(x_test, np.float32)
 x_train, x_test = x_train.reshape([-1, num_features]), x_test.reshape([-1, num_features])
 # Normalize images value from [0, 255] to [0, 1].
 x_train, x_test = x_train / 255., x_test / 255.
-
-
-
 
 batch_size = [1, 256, x_train.shape[0]]
 print(x_train)
