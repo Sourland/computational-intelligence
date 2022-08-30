@@ -62,7 +62,7 @@ def build_model(hp):
         model.add(layer)
 
     model.compile(optimizer=tf.optimizers.RMSprop(learning_rate=learning_rates),
-                  loss=tf.keras.losses.SparseCategoricalCrossentropy(),
+                  loss=tf.keras.losses.CategoricalCrossentropy(),
                   metrics=[accuracy, precision, recall, f_measure]
                   )
 
