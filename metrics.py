@@ -19,3 +19,4 @@ def f_measure(y_true, y_pred):
     model_precision = precision(y_true, y_pred)
     model_recall = recall(y_true, y_pred)
     return 2 * ((model_precision * model_recall) / (model_precision + model_recall + K.epsilon()))
+
