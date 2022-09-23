@@ -1,10 +1,3 @@
-import os
-
-from matplotlib import pyplot as plt
-
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-
 import tensorflow as tf
 import keras_tuner as kt
 

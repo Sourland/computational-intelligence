@@ -1,4 +1,12 @@
+#Python trash
 .idea
-__pycache__
+__pycache__/
+
+#Unwanted folders
 MLP/plots
 keras_tuner_dir
+
+#Unwanted files
+*~
+*.h5
+*.npy

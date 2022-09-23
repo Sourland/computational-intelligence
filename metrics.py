@@ -20,3 +20,8 @@ def f_measure(y_true, y_pred):
     model_recall = recall(y_true, y_pred)
     return 2 * ((model_precision * model_recall) / (model_precision + model_recall + K.epsilon()))
 
+
+def rho_squared(y_true, y_pred):
+    res = K.sum(K.square(y_true - y_pred))
+    tot = K.sum(K.square(y_true - K.mean(y_true)))
+    return 1 - res / (tot + K.epsilon())
