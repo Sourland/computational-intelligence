@@ -1,6 +1,7 @@
 from matplotlib import pyplot as plt
 import numpy as np
-from omg import k_means_cluster, calculate_center_distance
+from omg.data_processing import k_means_cluster, calculate_center_distance
+from time import time
 
 
 def convert_to_preferred_format(sec):
@@ -38,7 +39,7 @@ def plot_metrics(model_history, model_name, batch_size=None, model_class='mlp'):
         plt.ylabel('Accuracy')
         plt.xlabel('Epoch')
         plt.legend(['Training', 'Evaluation'], loc='upper left')
-        plt.savefig('MLP/plots/accuracy_' + model_name + ".png")
+        plt.savefig('plots/accuracy_' + model_name + ".png")
         plt.show()
 
         plt.plot(model_history.history['loss'])
@@ -54,7 +55,7 @@ def plot_metrics(model_history, model_name, batch_size=None, model_class='mlp'):
         plt.ylabel('Loss')
         plt.xlabel('Epoch')
         plt.legend(['Training', 'Evaluation'], loc='upper left')
-        plt.savefig('MLP/plots/loss_' + model_name + "_batch_size" + str(batch_size) + ".png")
+        plt.savefig('plots/loss_' + model_name + ".png")
         plt.show()
 
     else:
@@ -80,6 +81,16 @@ def plot_metrics(model_history, model_name, batch_size=None, model_class='mlp'):
         plt.show()
 
 
+def train_model(model=None, x_train=None, y_train=None, validation_split=0.2, epochs=100, batch_size=256,
+                total_training_times=None):
+    start = time()
+    history = model.fit(x_train, y_train, validation_split=validation_split, batch_size=batch_size,
+                        epochs=epochs)
+    end = time()
+    total_training_times.append(end - start)
+    plot_metrics(history, model.name, batch_size=batch_size)
+
+
 def calculate_rbf_elements(data, size):
     center, x_tran = k_means_cluster(data, size)
     cluster_center_max_dif = max(calculate_center_distance(center))
@@ -87,30 +98,3 @@ def calculate_rbf_elements(data, size):
     sigma = cluster_center_max_dif / np.sqrt(2 * size)
     betas = 1 / (2 * sigma ** 2)
     return center, betas
-
-# def plot_confusion_matrix(confusion_matrix, classes,
-#                           normalize=False,
-#                           title='Confusion matrix',
-#                           color_map=plt.confusion_matrix.Blues):
-#     plt.imshow(confusion_matrix, interpolation='nearest', confusion_matrixap=color_map)
-#     plt.title(title)
-#     plt.colorbar()
-#     tick_marks = np.arange(len(classes))
-#     plt.xticks(tick_marks, classes, rotation=45)
-#     plt.yticks(tick_marks, classes)
-#
-#     if normalize:
-#         confusion_matrix = confusion_matrix.astype('float') / confusion_matrix.sum(axis=1)[:, np.newaxis]
-#         print("Normalized confusion matrix")
-#     else:
-#         print('Confusion matrix, without normalization')
-#
-#     thresh = confusion_matrix.max() / 2.
-#     for i, j in itertools.product(range(confusion_matrix.shape[0]), range(confusion_matrix.shape[1])):
-#         plt.text(j, i, confusion_matrix[i, j],
-#                  horizontalalignment="center",
-#                  color="white" if confusion_matrix[i, j] > thresh else "black")
-#
-#     plt.tight_layout()
-#     plt.ylabel('True label')
-#     plt.xlabel('Predicted label')

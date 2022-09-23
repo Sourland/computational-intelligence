@@ -33,12 +33,12 @@ def compile_models():
                                metrics=['accuracy']
                                )
 
-    model_sgd_l2_case1.compile(optimizer=tf.optimizers.SGD(learning_rate=learning_rate_sgd),
+    model_sgd_l2_case2.compile(optimizer=tf.optimizers.SGD(learning_rate=learning_rate_sgd),
                                loss=tf.keras.losses.SparseCategoricalCrossentropy(),
                                metrics=['accuracy']
                                )
 
-    model_sgd_l2_case1.compile(optimizer=tf.optimizers.SGD(learning_rate=learning_rate_sgd),
+    model_sgd_l2_case3.compile(optimizer=tf.optimizers.SGD(learning_rate=learning_rate_sgd),
                                loss=tf.keras.losses.SparseCategoricalCrossentropy(),
                                metrics=['accuracy']
                                )
