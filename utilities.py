@@ -1,6 +1,6 @@
 from matplotlib import pyplot as plt
 import numpy as np
-from RBF.data_processing import k_means_cluster, calculate_center_distance
+from omg import k_means_cluster, calculate_center_distance
 
 
 def convert_to_preferred_format(sec):
