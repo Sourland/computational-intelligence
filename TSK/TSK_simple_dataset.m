@@ -69,7 +69,3 @@ for n = 1:length(TSK_models)
 end
 
 % Results Table
-varnames={'Model1', 'Model2', 'Model3', 'Model4'};
-rownames={'Rsquared' , 'RMSE' , 'NMSE' , 'NDEI'};
-metrics = array2table(metrics,'VariableNames',varnames,'RowNames',rownames);
-disp(metrics)
