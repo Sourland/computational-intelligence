@@ -3,7 +3,7 @@
 __pycache__/
 
 #Unwanted folders
-MLP/plots
+MLP/plotsN
 keras_tuner_dir
 
 #Unwanted files

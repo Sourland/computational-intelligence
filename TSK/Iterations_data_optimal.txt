@@ -1,0 +1,6 @@
+TSK_model_optimal
+RMSE = 28.050565
+ NMSE = 1.464610
+ NDEI = 1.210211
+ R2 = -0.464610
+
