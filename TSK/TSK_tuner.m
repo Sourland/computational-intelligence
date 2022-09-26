@@ -6,22 +6,29 @@ clc
 %% Tuning preperation
 data = readmatrix('train.csv');
 norm_data = normalize(data(:,1:end-1)); %Normalise data (not the target column)
-data = [norm_data(:,1:end) data(:,end)];
 
+X = norm_data(:,1:end);
+Y = data(:,end);
 % Evaluation function 
 R_squared = @(ypred,y) 1-sum((ypred-y).^2)/sum((y-mean(y)).^2);
 
 %Split the data
-training_data = data(1:floor(size(data,1)*0.6),:);
-evaluation_data = data(size(training_data,1)+1:size(training_data,1)+ceil(size(data,1)*0.2),:);
-testing_data = data(size(training_data,1)+size(evaluation_data,1)+1:end, :);
+X_train = X(1:floor(size(data,1)*0.6),:);
+Y_train = Y(1:floor(size(data,1)*0.6),:);
+
+X_val = X(size(X_train,1)+1:size(X_train,1)+ceil(size(X_train,1)*0.2),:);
+Y_val = Y(size(X_train,1)+1:size(X_train,1)+ceil(size(X_train,1)*0.2),:);
+
+X_test = X(size(X_train,1)+size(X_val,1)+1:end, :);
+Y_test = Y(size(X_train,1)+size(X_val,1)+1:end, :);
 
 %Set up tuning configurations
-total_features = [10 15 20 25];
-total_radius = [0.2 0.4 0.6 0.8];
+total_features = [10 15 20];
+total_radius = [0.3 0.6 0.9];
 kfold_choice = 5; %kfold k selection
-kfold_data = [training_data; evaluation_data];
-kfold_data_size = length(kfold_data);
+X_kfold = [X_train;X_val];
+Y_kfold = [Y_train;Y_val];
+kfold_data_size = length(X_kfold);
 error = zeros(length(total_features),length(total_radius));
 
 best_params = [15 0.2];
@@ -33,28 +40,31 @@ if tuning
     for i = 1:length(total_features)
         for j = 1:length(total_radius)
             features = total_features(i);
-            radius = total_radius(i);
+            radius = total_radius(j);
             validation_errors = zeros(kfold_choice);
             tic
             for k = 1:kfold_choice
                 random_idx = randperm(kfold_data_size);
 
                 training_data_idx = random_idx(1:floor(0.8*kfold_data_size));
-                kfold_training_data = kfold_data(training_data_idx, :);
+                temp_X_train = X_kfold(training_data_idx, :);
+                temp_Y_train = Y_kfold(training_data_idx, :);
+                
 
                 evaluation_data_idx = random_idx(floor(0.8*kfold_data_size)+1:end);
-                kfold_evaluation_data = kfold_data(evaluation_data_idx, :);
-
-                [indexes,weights] = relieff(kfold_training_data(:,1:end-1),kfold_training_data(:,end),10);
+                temp_X_val = X_kfold(evaluation_data_idx, :);
+                temp_Y_val = Y_kfold(evaluation_data_idx, :);
+                    
+                [indices,~] = relieff(temp_X_train,temp_Y_train,10);
                     
                 genfis_opt = genfisOptions('SubtractiveClustering','ClusterInfluenceRange',radius);
-                new_fis = genfis(kfold_training_data(:,indexes(1:features)),kfold_training_data(:,end),genfis_opt);
+                new_fis = genfis(temp_X_train(:,indices(1:features)), temp_Y_train,genfis_opt);
 
                 %Training Fis
                 training_options = anfisOptions('InitialFis',new_fis,'EpochNumber',100);
-                training_options.ValidationData = [kfold_evaluation_data(:,indexes(1:features)) kfold_evaluation_data(:,end)];
-                [training_fis,training_error,stepSize,evaluation_fis,evaluation_error] = ...
-                    anfis([kfold_training_data(:,indexes(1:features)) kfold_training_data(:,end)],training_options);
+                training_options.ValidationData = [temp_X_val(:,indices(1:features)) temp_Y_val];
+                
+                [training_fis,training_error,stepSize,evaluation_fis,evaluation_error] = anfis([temp_X_train(:,indices(1:features)) temp_Y_tram],training_options);
 
                 %Prediction Error
                 validation_error(k) = min(evaluation_error);
@@ -66,7 +76,7 @@ if tuning
             error(i,j) = sum(validation_error(:)) / kfold_choice;
             if error(i,j) < min_error
                 min_error = error(i,j);
-                best_params = [i, j];
+                best_params = [features, radius];
             end
             toc
         end
@@ -120,19 +130,22 @@ disp("train optimal model")
 best_features = best_params(1);
 best_radius = best_params(2);
 
-[indexes,weights] = relieff(training_data(:,1:end-1),training_data(:,end),10);
+[indices,~] = relieff(X_train, Y_train, 10);
+indices = indices(1:best_features);
+
+X_train = X_train(:,indices);
+X_val = X_val(:,indices);
 
 genfis_opt = genfisOptions('SubtractiveClustering','ClusterInfluenceRange', best_radius);
-new_fis = genfis(training_data(:,indexes(1:best_features)),training_data(:,end),genfis_opt);
+new_fis = genfis(X_train, Y_train, genfis_opt);
 
 %Training Fis
 training_options = anfisOptions('InitialFis',new_fis,'EpochNumber',100);
-training_options.ValidationData = [evaluation_data(:,indexes(1:best_features)) evaluation_data(:,end)];
-[training_fis,training_error,stepSize,evaluation_fis,evaluation_error] = ...
-    anfis([training_data(:,indexes(1:best_features)) training_data(:,end)],training_options);
+training_options.ValidationData = [X_val Y_val];
+[training_fis,training_error,stepSize,evaluation_fis,evaluation_error] = anfis([X_train Y_train], training_options);
 
-y_out = evalfis(evaluation_fis, testing_data(:,indexes(1:best_features))); 
-pred_error = testing_data(:,end) - y_out;
+Y_pred = evalfis(evaluation_fis, X_test(:,indices)); 
+pred_error = Y_test - Y_pred;
 
 %% Plots metrics and MS functions
 %MF before train
@@ -166,13 +179,13 @@ saveas(gcf,'optimal_mf_no_training.png');
 figure;
 
 % Learning Curve 
-plot([trnError valError], 'LineWidth',2);
+plot([training_error evaluation_error], 'LineWidth',2);
 grid on
 xlabel('Number of Iterations');
 ylabel('Error');
 legend('Training Error', 'Validation Error');
 title(strcat("Optimal Tsk model ", strcat(" Learning Curve")));
-saveas(gcf,name,'optimal_learning_curve.png'); 
+saveas(gcf,'optimal_learning_curve.png'); 
 
 %MF after train
 figure;
@@ -201,11 +214,11 @@ plotmf(evaluation_fis,'input',5);
 grid on
 xlabel('5. Suction side displacement thickness')
 suptitle(strcat("Optimal Tsk model  MFs after Training"));
-saveas(gcf,name,'optimal_mf_trained.png'); 
+saveas(gcf,'optimal_mf_trained.png'); 
 
 %Predictions Plot
 figure;
-plot([testing_data(:,end) y_out], 'LineWidth',2);
+plot([Y_test Y_pred], 'LineWidth',2);
 grid on
 xlabel('input');
 ylabel('Values');
@@ -226,11 +239,11 @@ saveas(gcf,name,'png');
 
 %Model Metrics
     
-SSres = sum((testing_data(:,end) - y_out).^2);
-SStot = sum((testing_data(:,end) - mean(testing_data(:,end))).^2);
+SSres = sum((Y_test - Y_pred).^2);
+SStot = sum((Y_test - mean(Y_test)).^2);
 R2 = 1- SSres/SStot;
 NMSE = 1-R2;
-RMSE = sqrt(mse(y_out,testing_data(:,end)));
+RMSE = sqrt(mse(Y_pred,Y_test));
 NDEI = sqrt(NMSE);
 
 metrics = [R2 NMSE RMSE NDEI];
