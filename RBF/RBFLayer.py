@@ -1,3 +1,4 @@
+import numpy as np
 import tensorflow as tf
 from tensorflow.keras.layers import Layer
 from tensorflow.keras.initializers import RandomUniform, Initializer, Constant
@@ -42,7 +43,7 @@ class RBFLayer(Layer):
         self.initializer = initializer if initializer else RandomUniform(
             0.0, 1.0)
 
-        super().__init__(**kwargs)
+        super(RBFLayer, self).__init__(**kwargs)
 
     def build(self, input_shape):
 
@@ -50,13 +51,16 @@ class RBFLayer(Layer):
                                        shape=(self.output_dim, input_shape[1]),
                                        initializer=self.initializer,
                                        trainable=True)
-        self.betas = self.add_weight(name='betas',
-                                     shape=(self.output_dim,),
-                                     initializer=self.betas_initializer,
-                                     # initializer='ones',
-                                     trainable=True)
+        d_max = 0
+        for i in range(1, self.output_dim):
+            for j in range(1, self.output_dim):
+                d = np.linalg.norm(self.centers[i] - self.centers[j])
+                if d > d_max:
+                    d_max = d
 
-        super().build(input_shape)
+        sigma = d_max / np.sqrt(2 * self.output_dim)
+        self.betas = np.ones(self.output_dim) / (2 * sigma * sigma)
+        super(RBFLayer, self).build(input_shape)
 
     def call(self, x):
 

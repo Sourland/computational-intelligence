@@ -1,6 +1,5 @@
 from matplotlib import pyplot as plt
 import numpy as np
-from omg.data_processing import k_means_cluster, calculate_center_distance
 from time import time
 
 
@@ -39,7 +38,7 @@ def plot_metrics(model_history, model_name, batch_size=None, model_class='mlp'):
         plt.ylabel('Accuracy')
         plt.xlabel('Epoch')
         plt.legend(['Training', 'Evaluation'], loc='upper left')
-        plt.savefig('plots/accuracy_' + model_name + ".png")
+        plt.savefig('MLP/plots/accuracy_' + model_name + ".png")
         plt.show()
 
         plt.plot(model_history.history['loss'])
@@ -55,7 +54,7 @@ def plot_metrics(model_history, model_name, batch_size=None, model_class='mlp'):
         plt.ylabel('Loss')
         plt.xlabel('Epoch')
         plt.legend(['Training', 'Evaluation'], loc='upper left')
-        plt.savefig('plots/loss_' + model_name + ".png")
+        plt.savefig('MLP/plots/loss_' + model_name + ".png")
         plt.show()
 
     else:
@@ -91,10 +90,3 @@ def train_model(model=None, x_train=None, y_train=None, validation_split=0.2, ep
     plot_metrics(history, model.name, batch_size=batch_size)
 
 
-def calculate_rbf_elements(data, size):
-    center, x_tran = k_means_cluster(data, size)
-    cluster_center_max_dif = max(calculate_center_distance(center))
-
-    sigma = cluster_center_max_dif / np.sqrt(2 * size)
-    betas = 1 / (2 * sigma ** 2)
-    return center, betas
