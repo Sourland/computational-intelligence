@@ -19,7 +19,6 @@ learning_rate = 1e-3
 
 x_train = normalize(x_train)
 x_test = normalize(x_test)
-rbf_layers = []
 
 rbf_model_1 = keras.Sequential(name='RBF-' + str(rbf_layer_sizes[0]) + '-neurons-model')
 rbf_model_1.add(RBFLayer(rbf_layer_sizes[0], initializer=InitCentersKMeans(x_train), input_shape=(13,)))
