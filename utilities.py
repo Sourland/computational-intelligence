@@ -38,7 +38,7 @@ def plot_metrics(model_history, model_name, batch_size=None, model_class='mlp'):
         plt.ylabel('Accuracy')
         plt.xlabel('Epoch')
         plt.legend(['Training', 'Evaluation'], loc='upper left')
-        plt.savefig('MLP/plots/accuracy_' + model_name + ".png")
+        plt.savefig('plots/accuracy_' + model_name + ".png")
         plt.show()
 
         plt.plot(model_history.history['loss'])
@@ -54,7 +54,7 @@ def plot_metrics(model_history, model_name, batch_size=None, model_class='mlp'):
         plt.ylabel('Loss')
         plt.xlabel('Epoch')
         plt.legend(['Training', 'Evaluation'], loc='upper left')
-        plt.savefig('MLP/plots/loss_' + model_name + ".png")
+        plt.savefig('plots/loss_' + model_name + ".png")
         plt.show()
 
     else:

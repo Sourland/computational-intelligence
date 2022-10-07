@@ -48,7 +48,7 @@ def build_model(hp):
     return hp_model
 
 
-total_epochs = 100
+total_epochs = 1
 
 tuner = kt.RandomSearch(
     build_model,

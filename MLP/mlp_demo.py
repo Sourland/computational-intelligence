@@ -25,11 +25,11 @@ total_training_times = []
 if __name__ == "__main__":
     compile_models()
 
-    for batch_size in [256, x_train.shape[0]]:
-        print("Training " + model_default.name + " for batch size = " + str(batch_size))
-        train_model(model=model_default, x_train=x_train, y_train=y_train, validation_split=validation_split,
-                    epochs=epochs, batch_size=batch_size, total_training_times=total_training_times)
-        clear_session()
+    # for batch_size in [256, x_train.shape[0]]:
+    #     print("Training " + model_default.name + " for batch size = " + str(batch_size))
+    #     train_model(model=model_default, x_train=x_train, y_train=y_train, validation_split=validation_split,
+    #                 epochs=epochs, batch_size=batch_size, total_training_times=total_training_times)
+    #     clear_session()
 
     print("Training " + model_rmsprop_case1.name + " for batch size = " + str(batch_size))
     train_model(model=model_rmsprop_case1, x_train=x_train, y_train=y_train, validation_split=validation_split,
@@ -54,7 +54,5 @@ if __name__ == "__main__":
     print("Training " + model_sgd_l2_case3.name + " for batch size = " + str(batch_size))
     train_model(model=model_sgd_l2_case3, x_train=x_train, y_train=y_train, validation_split=validation_split,
                 epochs=epochs, batch_size=batch_size, total_training_times=total_training_times)
-
-
 
     print(total_training_times)
