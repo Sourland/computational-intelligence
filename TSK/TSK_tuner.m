@@ -5,19 +5,24 @@ clc
 
 %% Tuning preperation
 data = readmatrix('train.csv');
-norm_data = normalize(data(:,1:end-1)); %Normalise data (not the target column)
-
-X = norm_data(:,1:end);
-Y = data(:,end);
+% for i = 1 : size(data,2)-1
+%     min_data = min(data(:,i));
+%     max_data = max(data(:,i));
+%     norm_data(:,i) = (data(:,i)-min_data)/(max_data-min_data); %feature scalling
+% end
+norm_data = normalize(data(:,1:end-1), 'norm');
+shuffle = randperm(size(norm_data,1));
+X = norm_data(shuffle,1:end);
+Y = data(shuffle,end);
 % Evaluation function 
 R_squared = @(ypred,y) 1-sum((ypred-y).^2)/sum((y-mean(y)).^2);
 
 %Split the data
-X_train = X(1:floor(size(data,1)*0.6),:);
-Y_train = Y(1:floor(size(data,1)*0.6),:);
+X_train = X(1:floor(size(norm_data,1)*0.6),:);
+Y_train = Y(1:floor(size(norm_data,1)*0.6),:);
 
-X_val = X(size(X_train,1)+1:size(X_train,1)+ceil(size(X_train,1)*0.2),:);
-Y_val = Y(size(X_train,1)+1:size(X_train,1)+ceil(size(X_train,1)*0.2),:);
+X_val = X(size(X_train,1)+1:size(X_train,1)+ceil(size(norm_data,1)*0.2),:);
+Y_val = Y(size(X_train,1)+1:size(X_train,1)+ceil(size(norm_data,1)*0.2),:);
 
 X_test = X(size(X_train,1)+size(X_val,1)+1:end, :);
 Y_test = Y(size(X_train,1)+size(X_val,1)+1:end, :);
@@ -33,9 +38,9 @@ error = zeros(length(total_features),length(total_radius));
 
 best_params = [15 0.2];
 min_error = 1e6;
-
+best_indices = 0;
 %% Tuning 
-tuning = false;
+tuning = false; % SET TO FALSE TO SKIP 5-FOLD VALIDATION TUNING
 if tuning
     for i = 1:length(total_features)
         for j = 1:length(total_radius)
@@ -77,6 +82,7 @@ if tuning
             if error(i,j) < min_error
                 min_error = error(i,j);
                 best_params = [features, radius];
+                best_indices = indices
             end
             toc
         end
@@ -142,7 +148,8 @@ new_fis = genfis(X_train, Y_train, genfis_opt);
 %Training Fis
 training_options = anfisOptions('InitialFis',new_fis,'EpochNumber',100);
 training_options.ValidationData = [X_val Y_val];
-[training_fis,training_error,stepSize,evaluation_fis,evaluation_error] = anfis([X_train Y_train], training_options);
+[training_fis,training_error,stepSize,evaluation_fis,evaluation_error] =...
+    anfis([X_train Y_train], training_options);
 
 Y_pred = evalfis(evaluation_fis, X_test(:,indices)); 
 pred_error = Y_test - Y_pred;
@@ -246,8 +253,8 @@ NMSE = 1-R2;
 RMSE = sqrt(mse(Y_pred,Y_test));
 NDEI = sqrt(NMSE);
 
-metrics = [R2 NMSE RMSE NDEI];
+metrics = [R2 ;NMSE; RMSE; NDEI];
 varnames={'Tuned model'};
-rownames={'Rsquared' , 'NMSE' , 'RMSE' , 'NDEI'};
-metrics = array2table(metrics,'VariableNames',varnames,'RowNames',rownames);
+rownames={'R^2' , 'NMSE' , 'RMSE' , 'NDEI'};
+metrics = array2table(metrics,'RowNames',rownames,'VariableNames',varnames);
 disp(metrics)
