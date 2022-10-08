@@ -5,11 +5,8 @@ clc
 
 %% Tuning preperation
 data = readmatrix('train.csv');
-% for i = 1 : size(data,2)-1
-%     min_data = min(data(:,i));
-%     max_data = max(data(:,i));
-%     norm_data(:,i) = (data(:,i)-min_data)/(max_data-min_data); %feature scalling
-% end
+
+
 norm_data = normalize(data(:,1:end-1), 'norm');
 shuffle = randperm(size(norm_data,1));
 X = norm_data(shuffle,1:end);
@@ -28,8 +25,8 @@ X_test = X(size(X_train,1)+size(X_val,1)+1:end, :);
 Y_test = Y(size(X_train,1)+size(X_val,1)+1:end, :);
 
 %Set up tuning configurations
-total_features = [10 15 20];
-total_radius = [0.3 0.6 0.9];
+total_features = [5 15 25];
+total_radius = [0.2 0.5 0.8];
 kfold_choice = 5; %kfold k selection
 X_kfold = [X_train;X_val];
 Y_kfold = [Y_train;Y_val];
@@ -38,9 +35,8 @@ error = zeros(length(total_features),length(total_radius));
 
 best_params = [15 0.2];
 min_error = 1e6;
-best_indices = 0;
 %% Tuning 
-tuning = false; % SET TO FALSE TO SKIP 5-FOLD VALIDATION TUNING
+tuning = true; % SET TO FALSE TO SKIP 5-FOLD VALIDATION TUNING
 if tuning
     for i = 1:length(total_features)
         for j = 1:length(total_radius)
@@ -61,15 +57,16 @@ if tuning
                 temp_Y_val = Y_kfold(evaluation_data_idx, :);
                     
                 [indices,~] = relieff(temp_X_train,temp_Y_train,10);
-                    
+                indices = indices(1:features);
+                
                 genfis_opt = genfisOptions('SubtractiveClustering','ClusterInfluenceRange',radius);
                 new_fis = genfis(temp_X_train(:,indices(1:features)), temp_Y_train,genfis_opt);
 
                 %Training Fis
                 training_options = anfisOptions('InitialFis',new_fis,'EpochNumber',100);
-                training_options.ValidationData = [temp_X_val(:,indices(1:features)) temp_Y_val];
+                training_options.ValidationData = [temp_X_val(:,indices) temp_Y_val];
                 
-                [training_fis,training_error,stepSize,evaluation_fis,evaluation_error] = anfis([temp_X_train(:,indices(1:features)) temp_Y_tram],training_options);
+                [training_fis,training_error,stepSize,evaluation_fis,evaluation_error] = anfis([temp_X_train(:,indices) temp_Y_train],training_options);
 
                 %Prediction Error
                 validation_error(k) = min(evaluation_error);
@@ -82,7 +79,6 @@ if tuning
             if error(i,j) < min_error
                 min_error = error(i,j);
                 best_params = [features, radius];
-                best_indices = indices
             end
             toc
         end
@@ -90,40 +86,32 @@ if tuning
 
     % Plotting Error with Number of Feature and Number of Rules relations
     figure(1)
-    subplot(2,2,1);
+    subplot(1,3,1);
     plot(total_radius, error(1,:))
     grid on
-    title('Number of Feature = 10')
-    subplot(2,2,2);
+    title('Number of Feature = 5')
+    subplot(1,3,2);
     plot(total_radius, error(2,:))
     grid on
     title('Number of Feature = 15')
-    subplot(2,2,3);
+    subplot(1,3,3);
     plot(total_radius, error(3,:))
-    grid on
-    title('Number of Feature = 20')
-    subplot(2,2,4);
-    plot(total_radius, error(4,:))
     grid on
     title('Number of Feature = 25')
     suptitle('Error - Number of Rules relation');
     saveas(gcf, 'tune_rules.png');
 
     figure()
-    subplot(2,2,1);
+    subplot(1,3,1);
     plot(total_features, error(:, 1))
     grid on
     title('Number of Radius = 0.2')
-    subplot(2,2,2);
+    subplot(1,3,2);
     plot(total_features, error(:, 2))
     grid on
-    title('Number of Radius = 0.4')
-    subplot(2,2,3);
+    title('Number of Radius = 0.5')
+    subplot(1,3,3);
     plot(total_features, error(:, 3))
-    grid on
-    title('Number of Radius = 0.6')
-    subplot(2,2,4);
-    plot(total_features, error(:, 4))
     grid on
     title('Number of Radius = 0.8')
     suptitle('Error - Number of Features relation');
@@ -133,8 +121,8 @@ end
 %% Train optimal model
 clc
 disp("train optimal model")
-best_features = best_params(1);
-best_radius = best_params(2);
+best_features = best_params(1)
+best_radius = best_params(2)
 
 [indices,~] = relieff(X_train, Y_train, 10);
 indices = indices(1:best_features);
