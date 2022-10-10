@@ -87,6 +87,6 @@ def train_model(model=None, x_train=None, y_train=None, validation_split=0.2, ep
                         epochs=epochs)
     end = time()
     total_training_times.append(end - start)
-    plot_metrics(history, model.name, batch_size=batch_size)
+    # plot_metrics(history, model.name, batch_size=batch_size)
 
 

@@ -15,7 +15,6 @@ from metrics import precision, recall, f_measure
 from utilities import plot_metrics
 from sklearn.metrics import confusion_matrix
 
-
 num_features = 784  # data features (img shape: 28*28).
 validation_split = 0.2
 num_classes = 10
@@ -32,7 +31,6 @@ y_test.astype('float32')
 x_train, x_test = x_train / 255., x_test / 255.
 
 y_train, y_test = to_categorical(y_train, num_classes), to_categorical(y_test, num_classes)
-
 
 
 def build_model(hp):
@@ -87,7 +85,6 @@ early_stopping = EarlyStopping(
 
 tuner.search(x_train, y_train,
              epochs=total_epochs,
-             batch_size=256,
              validation_split=0.2,
              callbacks=[early_stopping],
              )
@@ -126,6 +123,14 @@ history = tuned_model.fit(x_train, y_train, epochs=total_epochs, batch_size=256,
 plot_metrics(history, "tuned-MLP-network")
 
 loss, accuracy, f1_score, model_precision, model_recall = tuned_model.evaluate(x_test, y_test, verbose=0)
+
+print(
+    f"Best hyperparameters are: "
+    f"layer 1 size: {layer1_units}\n"
+    f"layer 2 size: {layer2_units}\n"
+    f"best learning rate: {learning_rate}\n"
+    f"best L2 Regularization coefficient: {l2_coeff}"
+)
 
 print('Test loss:', loss)
 print('Test accuracy:', accuracy)

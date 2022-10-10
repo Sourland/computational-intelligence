@@ -13,7 +13,7 @@ layers_vanilla = [
     layers.Dense(num_classes, activation=tf.nn.softmax, name="LayerOut"),
 ]
 alpha_l1 = 0.01
-l1_mean = 10
+l1_mean = 10/255
 layers_l1 = [
     layers.Dense(n_hidden_1, activation=tf.nn.relu, kernel_regularizer=regularizers.L1(l1=alpha_l1), name="Layer1"),
     layers.Dropout(rate=0.3),
