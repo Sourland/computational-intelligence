@@ -68,7 +68,7 @@ def build_model(hp):
     return model
 
 
-total_epochs = 1000
+total_epochs = 1
 
 tuner = kt.RandomSearch(
     build_model,
@@ -85,6 +85,7 @@ early_stopping = EarlyStopping(
 
 tuner.search(x_train, y_train,
              epochs=total_epochs,
+            batch_size = 12000,
              validation_split=0.2,
              callbacks=[early_stopping],
              )
@@ -119,7 +120,7 @@ tuned_model.compile(optimizer=tf.optimizers.RMSprop(learning_rate=learning_rate)
                     metrics=['accuracy', precision, recall, f_measure]
                     )
 
-history = tuned_model.fit(x_train, y_train, epochs=total_epochs, batch_size=256, validation_split=0.2)
+history = tuned_model.fit(x_train, y_train, epochs=total_epochs, validation_split=0.2)
 plot_metrics(history, "tuned-MLP-network")
 
 loss, accuracy, f1_score, model_precision, model_recall = tuned_model.evaluate(x_test, y_test, verbose=0)
@@ -148,5 +149,5 @@ sn.heatmap(confusion_matrix, annot=True, fmt='d')
 plt.xlabel("Predicted")
 plt.ylabel("True")
 plt.title("Confusion matrix for multiclass classification")
-plt.savefig("plots/cm_tuner.png")
+plt.savefig("cm_tuner.png")
 plt.show()

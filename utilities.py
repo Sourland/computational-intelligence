@@ -38,7 +38,7 @@ def plot_metrics(model_history, model_name, batch_size=None, model_class='mlp'):
         plt.ylabel('Accuracy')
         plt.xlabel('Epoch')
         plt.legend(['Training', 'Evaluation'], loc='upper left')
-        plt.savefig('plots/accuracy_' + model_name + ".png")
+        plt.savefig('MLP/plots/accuracy_' + model_name + ".png")
         plt.show()
 
         plt.plot(model_history.history['loss'])
@@ -54,7 +54,7 @@ def plot_metrics(model_history, model_name, batch_size=None, model_class='mlp'):
         plt.ylabel('Loss')
         plt.xlabel('Epoch')
         plt.legend(['Training', 'Evaluation'], loc='upper left')
-        plt.savefig('plots/loss_' + model_name + ".png")
+        plt.savefig('MLP/plots/loss_' + model_name + ".png")
         plt.show()
 
     else:
@@ -66,7 +66,7 @@ def plot_metrics(model_history, model_name, batch_size=None, model_class='mlp'):
         plt.ylabel('coefficient of determination')
         plt.xlabel('epoch')
         plt.legend(['train', 'validation'], loc='upper left')
-        plt.savefig('plots/r2_' + model_name + ".png")
+        plt.savefig('r2_' + model_name + ".png")
         plt.show()
 
         title_2 = 'Model Loss for ' + model_name
@@ -76,7 +76,7 @@ def plot_metrics(model_history, model_name, batch_size=None, model_class='mlp'):
         plt.ylabel('cost')
         plt.xlabel('epoch')
         plt.legend(['train', 'validation'], loc='upper left')
-        plt.savefig('plots/loss_' + model_name + ".png")
+        plt.savefig('loss_' + model_name + ".png")
         plt.show()
 
 

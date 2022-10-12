@@ -6,7 +6,7 @@ from keras.backend import clear_session
 from MLP.models import model_default, model_sgd_l1, model_sgd_l2_case1, model_sgd_l2_case2, model_sgd_l2_case3, \
     model_rmsprop_case1, model_rmsprop_case2, compile_models
 
-epochs = 100
+epochs = 1
 num_features = 784  # data features (img shape: 28*28).
 validation_split = 0.2
 
@@ -23,14 +23,14 @@ total_training_times = []
 if __name__ == "__main__":
     compile_models()
 
-    for batch_size in [256, np.floor(0.8 * x_train.shape[0])]:
+    for batch_size in [256, np.floor(0.8 * x_train.shape[0]).astype(int)]:
         print("Training " + model_default.name + " for batch size = " + str(batch_size))
         start = time()
         history = model_default.fit(x_train, y_train, validation_split=validation_split, batch_size=batch_size,
                                           epochs=epochs)
         end = time()
         total_training_times.append(end - start)
-        plot_metrics(history, model_default.name, batch_size=batch_size)
+        plot_metrics(history, model_default.name)
         clear_session()
 
     batch_size = 256

@@ -50,7 +50,7 @@ models_rmse = []
 models_rmse_val = []
 
 history_1 = rbf_model_1.fit(x_train, y_train, epochs=100, validation_split=0.2)
-plot_metrics(model_history=history_1, model_name=rbf_model_1.name, model_class='rbf')
+# plot_metrics(model_history=history_1, model_name=rbf_model_1.name, model_class='rbf')
 
 models_r2.append(history_1.history['rho_squared'][-1])
 models_r2_val.append(history_1.history['val_rho_squared'][-1])
@@ -58,7 +58,7 @@ models_rmse.append(history_1.history['root_mean_squared_error'][-1])
 models_rmse_val.append(history_1.history['val_root_mean_squared_error'][-1])
 
 history_2 = rbf_model_2.fit(x_train, y_train, epochs=100, validation_split=0.2)
-plot_metrics(model_history=history_2, model_name=rbf_model_2.name, model_class='rbf')
+# plot_metrics(model_history=history_2, model_name=rbf_model_2.name, model_class='rbf')
 
 models_r2.append(history_2.history['rho_squared'][-1])
 models_r2_val.append(history_2.history['val_rho_squared'][-1])
@@ -66,7 +66,7 @@ models_rmse.append(history_2.history['root_mean_squared_error'][-1])
 models_rmse_val.append(history_2.history['val_root_mean_squared_error'][-1])
 
 history_3 = rbf_model_3.fit(x_train, y_train, epochs=100, validation_split=0.2)
-plot_metrics(model_history=history_3, model_name=rbf_model_3.name, model_class='rbf')
+# plot_metrics(model_history=history_3, model_name=rbf_model_3.name, model_class='rbf')
 
 models_r2.append(history_3.history['rho_squared'][-1])
 models_r2_val.append(history_3.history['val_rho_squared'][-1])
