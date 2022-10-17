@@ -36,7 +36,7 @@ error = zeros(length(total_features),length(total_radius));
 best_params = [15 0.2];
 min_error = 1e6;
 %% Tuning 
-tuning = true; % SET TO FALSE TO SKIP 5-FOLD VALIDATION TUNING
+tuning = false; % SET TO FALSE TO SKIP 5-FOLD VALIDATION TUNING
 if tuning
     for i = 1:length(total_features)
         for j = 1:length(total_radius)
