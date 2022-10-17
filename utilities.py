@@ -38,7 +38,7 @@ def plot_metrics(model_history, model_name, batch_size=None, model_class='mlp'):
         plt.ylabel('Accuracy')
         plt.xlabel('Epoch')
         plt.legend(['Training', 'Evaluation'], loc='upper left')
-        plt.savefig('MLP/plots/accuracy_' + model_name + ".png")
+        plt.savefig('MLP/plots/accuracy_' + model_name + "_batchsize=" + str(batch_size) + ".png")
         plt.show()
 
         plt.plot(model_history.history['loss'])
@@ -54,7 +54,7 @@ def plot_metrics(model_history, model_name, batch_size=None, model_class='mlp'):
         plt.ylabel('Loss')
         plt.xlabel('Epoch')
         plt.legend(['Training', 'Evaluation'], loc='upper left')
-        plt.savefig('MLP/plots/loss_' + model_name + ".png")
+        plt.savefig('MLP/plots/loss_' + model_name + "_batchsize=" + str(batch_size) + ".png")
         plt.show()
 
     else:
@@ -78,15 +78,3 @@ def plot_metrics(model_history, model_name, batch_size=None, model_class='mlp'):
         plt.legend(['train', 'validation'], loc='upper left')
         plt.savefig('loss_' + model_name + ".png")
         plt.show()
-
-
-def train_model(model=None, x_train=None, y_train=None, validation_split=0.2, epochs=100, batch_size=256,
-                total_training_times=None):
-    start = time()
-    history = model.fit(x_train, y_train, validation_split=validation_split, batch_size=batch_size,
-                        epochs=epochs)
-    end = time()
-    total_training_times.append(end - start)
-    # plot_metrics(history, model.name, batch_size=batch_size)
-
-

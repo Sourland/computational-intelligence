@@ -47,7 +47,8 @@ def build_model(hp):
         layers.Dense(units=layer1_units, activation=tf.nn.relu,
                      kernel_regularizer=regularizer,
                      kernel_initializer=initializer,
-                     name="Layer1"),
+                     name="Layer1",
+                     input_shape=(784,)),
         layers.Dense(units=layer2_units, activation=tf.nn.relu,
                      kernel_regularizer=regularizer,
                      kernel_initializer=initializer,
@@ -60,7 +61,7 @@ def build_model(hp):
     for layer in network_layers:
         model.add(layer)
 
-    model.compile(optimizer=tf.optimizers.RMSprop(learning_rate=learning_rates),
+    model.compile(optimizer=tf.optimizers.SGD(learning_rate=learning_rates),
                   loss=tf.keras.losses.CategoricalCrossentropy(),
                   metrics=['accuracy', precision, recall, f_measure]
                   )
@@ -68,24 +69,25 @@ def build_model(hp):
     return model
 
 
-total_epochs = 1
+total_epochs = 1000
 
-tuner = kt.RandomSearch(
+tuner = kt.Hyperband(
     build_model,
     objective=kt.Objective("f_measure", direction='max'),
+    max_epochs=total_epochs,
     directory='keras_tuner_dir',
     project_name='mlp_tuning',
     overwrite=True
 )
 
 early_stopping = EarlyStopping(
-    monitor="loss",
+    monitor="f_measure",
     patience=200,
     restore_best_weights=True)
 
 tuner.search(x_train, y_train,
              epochs=total_epochs,
-            batch_size = 12000,
+             batch_size=128,
              validation_split=0.2,
              callbacks=[early_stopping],
              )
@@ -102,7 +104,7 @@ network_layers = [
     layers.Dense(units=layer1_units, activation=tf.nn.relu,
                  kernel_regularizer=keras.regularizers.L2(l2=l2_coeff),
                  kernel_initializer=keras.initializers.HeNormal(),
-                 name="Layer1"),
+                 name="Layer1", input_shape=(784,)),
     layers.Dense(units=layer2_units, activation=tf.nn.relu,
                  kernel_regularizer=keras.regularizers.L2(l2=l2_coeff),
                  kernel_initializer=keras.initializers.HeNormal(),
@@ -115,12 +117,12 @@ network_layers = [
 for layer in network_layers:
     tuned_model.add(layer)
 
-tuned_model.compile(optimizer=tf.optimizers.RMSprop(learning_rate=learning_rate),
+tuned_model.compile(optimizer=tf.optimizers.SGD(learning_rate=learning_rate),
                     loss=tf.keras.losses.CategoricalCrossentropy(),
                     metrics=['accuracy', precision, recall, f_measure]
                     )
 
-history = tuned_model.fit(x_train, y_train, epochs=total_epochs, validation_split=0.2)
+history = tuned_model.fit(x_train, y_train, epochs=100, batch_size=128, validation_split=0.2)
 plot_metrics(history, "tuned-MLP-network")
 
 loss, accuracy, f1_score, model_precision, model_recall = tuned_model.evaluate(x_test, y_test, verbose=0)
