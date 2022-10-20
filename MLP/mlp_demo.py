@@ -22,7 +22,7 @@ x_train, x_test = x_train / 255., x_test / 255.
 total_training_times = []
 if __name__ == "__main__":
     compile_models()
-    for batch_size in [256, np.floor(0.8 * x_train.shape[0]).astype(int)]:
+    for batch_size in [1, 256, np.floor(0.8 * x_train.shape[0]).astype(int)]:
         print("Training " + model_default.name + " for batch size = " + str(batch_size))
         start = time()
         history = model_default.fit(x_train, y_train, validation_split=validation_split, batch_size=batch_size,
