@@ -4,7 +4,7 @@ close all
 
 %% Control System params
 Kp=1.87
-c=-1.11;
+c=-1.11
 Ka=1;
 K=10*Ka*Kp;
 Ki=Kp*(-c)
@@ -13,7 +13,7 @@ Ki=Kp*(-c)
 Gc=zpk(c, 0, Kp);
 Gp=zpk([],[-1 -9],10);
 
-%Gewmwtrikos topos rizwn
+%Root locus
 Ac=Gc*Gp;
 
 
